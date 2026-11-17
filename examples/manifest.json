@@ -1,0 +1,26 @@
+[
+  {
+    "id": "CLSFBI3204A_S066_B_36888_37095",
+    "sign": "BOIRE",
+    "signer": "S066",
+    "split": "test",
+    "file": "boire.npy",
+    "selection": "First test ID alphabetically for this sign; no filtering on predictions"
+  },
+  {
+    "id": "CLSFBI0402A_S010_B_100432_100901",
+    "sign": "HOPITAL",
+    "signer": "S010",
+    "split": "test",
+    "file": "hopital.npy",
+    "selection": "First test ID alphabetically for this sign; no filtering on predictions"
+  },
+  {
+    "id": "CLSFBI0402A_S010_B_98114_98340",
+    "sign": "NON",
+    "signer": "S010",
+    "split": "test",
+    "file": "non.npy",
+    "selection": "First test ID alphabetically for this sign; no filtering on predictions"
+  }
+]

@@ -1,0 +1,13 @@
+# Shared dependencies. Install the appropriate CPU/GPU Torch build first (README).
+torch==2.10.0
+numpy==2.3.5
+pandas==2.3.3
+scikit-learn==1.7.2
+opencv-contrib-python==4.11.0.86
+mediapipe==0.10.32
+Pillow==13.0.0
+matplotlib==3.10.0
+joblib>=1.5,<2
+threadpoolctl>=3.6,<4
+tqdm>=4.67,<5
+psutil>=7,<8
