@@ -24,8 +24,11 @@ Thumbs.db
 /outputs/
 /runs/
 /cache/
-/models/*
-!/models/README.md
 /data/*
 !/data/README.md
 /evidence/
+
+# Small inference assets shipped with the demo
+!/models/spoter_legacy/best_model.pt
+!/models/mediapipe/hand_landmarker.task
+!/models/mediapipe/pose_landmarker_lite.task

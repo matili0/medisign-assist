@@ -1,59 +1,89 @@
 # Reproducing the workflow
 
-Run commands from the repository root after following the README installation.
-The quick demo and tests require the separate `medisign-models.zip` bundle; full
-corpus evaluation also needs `medisign-data.zip`. Extract either archive at the
-repository root. The corpus archive provides `data/LSFB_ISOL/` with prepared medical
-poses, metadata and signer groups. Archives are prepared separately from Git and
-have no public download URL yet. Their checksums accompany the archives.
+Run commands from the repository root in the environment installed according to the
+README. The inference model and MediaPipe detectors are included in Git. The corpus
+is optional and is downloaded directly from the official LSFB server when requested.
 
-The raw LSFB dataset alone is not a drop-in replacement for this prepared subset.
-`src/data.py` audits and loads prepared poses; it does not download or build them.
-Corpus terms and transformations are described in [NOTICE.md](../NOTICE.md).
-
-## Verify without training
+## Verify the demo without the corpus
 
 ```powershell
 python -m unittest discover -s tests -v
-python src/data.py check-env
+python src/app.py --input examples/boire.npy
 ```
 
-## Optional evaluation of the existing model
-
-These commands perform inference and write new results. Use a new output directory
-for each run; existing recorded figures in `docs/images/` remain unchanged.
+## Download and prepare medical poses
 
 ```powershell
+python src/prepare_corpus.py
 python src/data.py audit --output-dir outputs/data-audit
+```
+
+The script downloads `instances.csv` and cleaned poses for the 20 medical signs:
+33 body points, 21 left-hand points and 21 right-hand points. It concatenates x/y/z
+coordinates into raw `(T, 225)` arrays in `data/LSFB_ISOL/landmarks/` and writes
+`index.csv`. Empty source sequences are excluded by the loader. Videos are not needed.
+It installs the recorded signer partition from the bundled model protocol rather
+than generating a different split. See [data layout and options](../data/README.md).
+
+Internet access and the upstream LSFB server are required. Existing source files
+are validated and reused. Rerun after interruption; `--workers 2` lowers concurrency.
+Use `--prepare-only` if all required poses are already downloaded. For a different
+storage location, change `dataset_path` in `config.json` before downloading. Corpus
+files are ignored by Git. Read [dataset terms and attribution](../NOTICE.md) first.
+
+## Evaluate the existing model
+
+Use a fresh output folder for every evaluation. This runs inference and writes new
+results; it does not replace the recorded figures in `docs/images/`.
+
+```powershell
 python src/evaluate.py run --run models/spoter_legacy --split test --threads 1 --output-dir outputs/spoter-test
 python src/evaluate.py threshold --run models/spoter_legacy --output-dir outputs/thresholds
 ```
 
-Threshold analysis uses validation. Do not select a threshold on the test set.
+Threshold selection uses validation. The upstream corpus may evolve; the saved
+bundle checks the example IDs, labels and partition before evaluation. Changed
+upstream inputs do not establish reproduction of the recorded scores.
 
-## Optional baseline training
+## Train classical baselines
 
 ```powershell
-python src/train.py classical --model majority --output-dir runs/classical
-python src/train.py classical --model svm --output-dir runs/classical
+python src/train.py classical --model all --output-dir runs/classical
 python src/evaluate.py run --run runs/classical/svm --split val --threads 1 --output-dir outputs/svm-val
 python src/evaluate.py run --run runs/classical/svm --split test --threads 1 --output-dir outputs/svm-test
 ```
 
-Classical families have separate child directories. Training uses train and the
-SVM hyperparameter search uses validation.
+This trains majority, logistic regression and SVM baselines. SVM hyperparameters are
+selected on validation. Each family has its own child directory under `runs/classical`.
 
-## Optional SPOTER experiments
+## Pretrain SPOTER and fine-tune medical signs
 
-The complete auxiliary corpus and its prepared `pretrain_landmarks/` are **not** in
-the medical corpus archive. Obtain and prepare those separately before pretraining;
-`--include-pretrain` audits them. The code retains the original recipe, but the
-historical auxiliary checkpoint was not fully identified.
+First add the auxiliary corpus: nonmedical signs with at least 50 occurrences in
+the full metadata, restricted to train/validation signers. The preparation script
+normalizes auxiliary poses once into `pretrain_landmarks/`. This download is much
+larger than the medical subset and can take substantial time.
 
 ```powershell
-python src/pretrain.py --help
-python src/train.py medical --help
+python src/prepare_corpus.py --include-pretrain
+python src/data.py audit --include-pretrain --output-dir outputs/full-data-audit
+python src/pretrain.py --output-dir runs/pretrain
+python src/train.py medical --pretrained runs/pretrain/pretrained.pt --augmentation on --output-dir runs/medical
+python src/evaluate.py run --run runs/medical --split val --output-dir outputs/medical-val
+python src/evaluate.py run --run runs/medical --split test --output-dir outputs/medical-test
 ```
 
-GPU training uses an appropriate PyTorch CUDA installation; the provided lock file
-targets the Windows CPU demonstration. Scores and timings may vary across environments.
+To resume interrupted pretraining:
+
+```powershell
+python src/pretrain.py --resume runs/pretrain/last.pt
+```
+
+Choose a new output directory for a new experiment; completed runs are not silently
+overwritten. Medical fine-tuning requires the auxiliary checkpoint and its metadata;
+the supplied 20-class demo weights are not a substitute for auxiliary pretraining.
+A CUDA-compatible PyTorch installation is recommended for training. The README's
+lock file targets the Windows CPU demo. See each command's `--help` for options.
+
+The exact auxiliary checkpoint behind the historical medical weights was not
+recorded. These commands enable a new experiment using the included implementation;
+they do not promise bit-for-bit recreation of the historical weights or scores.

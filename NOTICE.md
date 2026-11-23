@@ -40,7 +40,7 @@ and the conditions of the training corpus; no broader permission is added here.
 
 ## MediaPipe detectors
 
-The separate model archive contains unchanged `hand_landmarker.task` and
+The repository includes unchanged `hand_landmarker.task` and
 `pose_landmarker_lite.task` files. Copyright Google and contributors. Their source
 model cards identify Apache-2.0; the included Apache notice is retained.
 

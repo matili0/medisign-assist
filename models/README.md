@@ -1,8 +1,9 @@
-# Model files
+# Included inference models
 
-Extract the separately supplied `medisign-models.zip` at the repository root.
-It contains the trained SPOTER model and metadata under `models/spoter_legacy/`
-and the two MediaPipe detectors under `models/mediapipe/`.
+The repository includes the trained SPOTER model and its metadata in
+`spoter_legacy/`, plus the unchanged MediaPipe body and hand detectors in `mediapipe/`.
+These files are sufficient for the desktop app, pose examples and inference tests.
+The SPOTER checkpoint is the historical medical model evaluated in the README.
 
-These runtime files are excluded from Git. The prepared local copy already has them.
-The bundle has no published download URL yet. See [notices](../NOTICE.md).
+New training runs belong in ignored `runs/` directories. Keep these reference
+weights intact when experimenting. See [attribution and model notices](../NOTICE.md).

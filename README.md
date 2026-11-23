@@ -46,10 +46,9 @@ python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements-lock-cpu.txt
 ```
 
-Model binaries are distributed separately as **`medisign-models.zip`**. Extract that
-archive into the repository root so that `models/spoter_legacy/best_model.pt` and
-`models/mediapipe/*.task` exist. The prepared local copy already includes these ignored
-files. No public download URL is configured yet.
+The trained SPOTER weights, model metadata and both MediaPipe detectors are included
+in `models/`. Cloning the repository provides everything needed for the demo;
+no corpus download is required.
 
 ```powershell
 .venv\Scripts\python.exe src/app.py --input examples/boire.npy
@@ -81,8 +80,8 @@ model and detectors locally. It does not save webcam video.
 .venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-See [reproduction instructions](docs/REPRODUCING.md) for the optional corpus archive,
-baseline training and evaluation. The auxiliary pretraining corpus is not bundled.
+See [reproduction instructions](docs/REPRODUCING.md) to download and prepare the optional LSFB-ISOL corpus,
+train baseline models, pretrain SPOTER and fine-tune it on medical signs.
 
 ## Scope and limitations
 
